@@ -1,10 +1,12 @@
 CREATE TABLE "Case" (
   "Id" SERIAL PRIMARY KEY,
   "CaseName" varchar(225) NOT NULL,
+  "Description" varchar(255) NOT NULL,
   "State" varchar(10) NOT NULL,
+  "StartedDate" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "ChildProfileId" uuid NOT NULL,
   "CaseOwnerId" uuid NOT NULL,
-  "CreateBy" uuid NOT NULL, 
+  "CreateBy" uuid NOT NULL,
   CONSTRAINT "FK_Case.CaseOwnerId"
     FOREIGN KEY ("CaseOwnerId")
       REFERENCES "User"("Id") ON DELETE CASCADE,
