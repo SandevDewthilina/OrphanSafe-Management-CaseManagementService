@@ -3,6 +3,8 @@ import {
   createCase,
   getCaseList,
   getCaseInfoByCaseId,
+  getCaseInvitationByUserId,
+  createCaseLog,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -11,5 +13,9 @@ const router = express.Router();
 router.route("/createCase").post(protect, createCase);
 router.route("/getCaseList").get(protect, getCaseList);
 router.route("/getCaseInfoByCaseId").get(protect, getCaseInfoByCaseId);
-router.route("/")
+router
+  .route("/getCaseInvitationByUserId")
+  .get(protect, getCaseInvitationByUserId);
+router.route("/createCaseLog").post(protect,createCaseLog)
+
 export default router;

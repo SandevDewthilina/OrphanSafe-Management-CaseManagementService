@@ -15,17 +15,113 @@ export const createCaseAsync = async (
 
 export const getCaseListasync = async () => {
   const result = await DatabaseHandler.executeSingleQueryAsync(
-    'SELECT y."CaseId", y."CaseName", cp."Id" AS "ChildId", cp."FirstName" ||$1|| cp."LastName" AS "ChildName", y."CreateBy", y."CaseOwner",(SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1) FROM (SELECT x."Name" AS "CreateBy",v."Name" AS "CaseOwner",x."ChildProfileId",x."CaseId",x."CaseName" FROM (SELECT u."Name",c."ChildProfileId",c."CaseOwnerId",c."Id" AS "CaseId",c."CaseName"  FROM "Case" AS c INNER JOIN "User" AS u ON u."Id" = c."CreateBy") AS x INNER JOIN "User" AS v ON v."Id" = x."CaseOwnerId") AS y INNER JOIN "ChildProfile" AS cp ON y."ChildProfileId" = cp."Id"',
-    [" "]
+    `SELECT 
+      y."CaseId",
+      y."CaseName",
+      cp."Id" AS "ChildId",
+      cp."FullName" AS "ChildName",
+      y."CreateBy", y."CaseOwner",
+      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1)
+    FROM
+      (SELECT
+        x."Name" AS "CreateBy",
+        v."Name" AS "CaseOwner",
+        x."ChildProfileId",
+        x."CaseId",
+        x."CaseName"
+      FROM
+        (SELECT
+          u."Name",
+          c."ChildProfileId",
+          c."CaseOwnerId",
+          c."Id" AS "CaseId",
+          c."CaseName"
+        FROM
+          "Case" AS c
+        INNER JOIN
+          "User" AS u
+        ON u."Id" = c."CreateBy") AS x
+      INNER JOIN
+        "User" AS v
+      ON v."Id" = x."CaseOwnerId") AS y
+    INNER JOIN
+      "ChildProfile" AS cp
+    ON y."ChildProfileId" = cp."Id"`,
+    []
   );
   return result;
 };
 
 export const getCaseInfoByCaseIdasync = async (caseId) => {
   const result = await DatabaseHandler.executeSingleQueryAsync(
-    'SELECT y."CaseId", y."CaseName",y."description", cp."Id" AS "ChildId", cp."FirstName" ||$1|| cp."LastName" AS "ChildName", y."CreateBy", y."CaseOwner",(SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1),(SELECT "LoggedDateTime" AS "StartedDate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" DESC LIMIT 1) FROM (SELECT x."Name" AS "CreateBy",v."Name" AS "CaseOwner",x."ChildProfileId",x."CaseId",x."CaseName",x."description" FROM (SELECT u."Name",c."ChildProfileId",c."CaseOwnerId",c."Id" AS "CaseId",c."CaseName",c."description" FROM "Case" AS c INNER JOIN "User" AS u ON u."Id" = c."CreateBy") AS x INNER JOIN "User" AS v ON v."Id" = x."CaseOwnerId") AS y INNER JOIN "ChildProfile" AS cp ON y."ChildProfileId" = cp."Id" WHERE "CaseId"= $2',
-    [" ", caseId]
+    `SELECT 
+      y."CaseId",
+      y."CaseName",
+      y."Description",
+      cp."Id" AS "ChildId",
+      cp."FullName" AS "ChildName",
+      y."CreateBy",
+      y."CaseOwner",
+      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1),
+      (SELECT "LoggedDateTime" AS "StartedDate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" DESC LIMIT 1)
+    FROM
+      (SELECT
+        x."Name" AS "CreateBy",
+        v."Name" AS "CaseOwner",
+        x."ChildProfileId",
+        x."CaseId",
+        x."CaseName",
+        x."Description"
+      FROM
+        (SELECT
+          u."Name",
+          c."ChildProfileId",
+          c."CaseOwnerId",
+          c."Id" AS "CaseId",
+          c."CaseName",
+          c."Description"
+        FROM
+          "Case" AS c
+        INNER JOIN
+          "User" AS u
+        ON u."Id" = c."CreateBy") AS x
+      INNER JOIN
+        "User" AS v
+      ON v."Id" = x."CaseOwnerId") AS y
+    INNER JOIN
+      "ChildProfile" AS cp
+    ON y."ChildProfileId" = cp."Id"
+    WHERE "CaseId"= $1`,
+    [caseId]
   );
   return result;
 };
 
+export const getCaseInvitationByUserIdasync = async (userId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT 
+      c."Id" AS "CaseId",
+      c."CaseName",
+      c."Description",
+      (SELECT "FullName" AS "ChildName" FROM "ChildProfile" WHERE "Id"=c."ChildProfileId"),
+      (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreateBy")
+    FROM
+      "Case" AS c
+    WHERE "State"='pending' AND "CaseOwnerId"= $1`,
+    [userId]
+  );
+  return result;
+};
+
+export const createCaseLogAsync = async (
+  caseId,
+  logName,
+  logDescription,
+  logDocumentId
+) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "CaseLog" ("CaseId", "LogDescription","DocumentCollectionID","Description") VALUES ($1, $2, $3, $4)`,
+    [caseId, logName, logDocumentId, logDescription]
+  );
+  print("sa");
+};
