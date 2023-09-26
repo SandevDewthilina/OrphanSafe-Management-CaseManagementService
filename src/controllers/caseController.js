@@ -6,7 +6,8 @@ import {
   getCaseInvitationByUserIdasync,
   createCaseLogAsync,
 } from "../services/caseService.js";
-import { notFound } from "../middleware/errorMiddleware.js";
+import { RPCRequest } from "../lib/rabbitmq/index.js";
+import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
 
 // @desc notification broadcast
 // route POST /api/notifications/broadcast
@@ -59,4 +60,9 @@ export const createCaseLog = asyncHandler(async (req, res) => {
     success: true,
     message: "successfully created a caseLog",
   });
+});
+
+export const requestCaseDoc = asyncHandler(async (req, res) => {
+  const resp = await RPCRequest(DOCUMENT_SERVICE_RPC, {event: 'URL_FOR_KEYS', data: ['s12ui121/profile/fde0c464-380d-464c-b617-da0158e18157--FirstRegistrationMonth.png']})
+  return res.json(resp)
 });
