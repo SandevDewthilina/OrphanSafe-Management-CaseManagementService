@@ -22,7 +22,13 @@ export const createCase = asyncHandler(async (req, res) => {
   const caseOwnerID = req.body.caseOwnerID;
   const createdID = req.body.createdID;
   const description = req.body.description;
-  await createCaseAsync(caseName, childProfileID, caseOwnerID, createdID,description);
+  await createCaseAsync(
+    caseName,
+    childProfileID,
+    caseOwnerID,
+    createdID,
+    description
+  );
   return res.status(200).json({
     success: true,
     message: "successfully created a case",
@@ -65,7 +71,6 @@ export const createCaseLog = asyncHandler(async (req, res) => {
   });
 });
 
-
 export const getCaseNameList = asyncHandler(async (req, res) => {
   const result = await getCaseNameListAsync();
   return res.status(200).json({
@@ -90,8 +95,13 @@ export const updateCaseState = asyncHandler(async (req, res) => {
     success: true,
     message: "successfully updated",
   });
-
+});
 export const requestCaseDoc = asyncHandler(async (req, res) => {
-  const resp = await RPCRequest(DOCUMENT_SERVICE_RPC, {event: 'URL_FOR_KEYS', data: ['s12ui121/profile/fde0c464-380d-464c-b617-da0158e18157--FirstRegistrationMonth.png']})
-  return res.json(resp)
+  const resp = await RPCRequest(DOCUMENT_SERVICE_RPC, {
+    event: "URL_FOR_KEYS",
+    data: [
+      "s12ui121/profile/fde0c464-380d-464c-b617-da0158e18157--FirstRegistrationMonth.png",
+    ],
+  });
+  return res.json(resp);
 });
