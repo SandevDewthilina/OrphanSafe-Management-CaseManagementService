@@ -2,20 +2,20 @@ CREATE TABLE "Case" (
   "Id" SERIAL PRIMARY KEY,
   "CaseName" varchar(225) NOT NULL,
   "Description" varchar(255) NOT NULL,
-  "State" varchar(10) NOT NULL,
-  "StartedDate" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "State" caseState NOT NULL,
   "ChildProfileId" uuid NOT NULL,
+  "CreatedAt" timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   "CaseOwnerId" uuid NOT NULL,
-  "CreateBy" uuid NOT NULL,
+  "CreatedBy" uuid NOT NULL,
   CONSTRAINT "FK_Case.CaseOwnerId"
     FOREIGN KEY ("CaseOwnerId")
-      REFERENCES "User"("Id") ON DELETE CASCADE,
-  CONSTRAINT "FK_Case.CreateBy"
-    FOREIGN KEY ("CreateBy")
-      REFERENCES "User"("Id") ON DELETE CASCADE,
+      REFERENCES "SocialWorker"("Id") ON DELETE CASCADE,
   CONSTRAINT "FK_Case.ChildProfileId"
     FOREIGN KEY ("ChildProfileId")
-      REFERENCES "ChildProfile"("Id") ON DELETE CASCADE
+      REFERENCES "ChildProfile"("Id") ON DELETE CASCADE,
+  CONSTRAINT "FK_Case.CreatedBy"
+    FOREIGN KEY ("CreatedBy")
+      REFERENCES "User"("Id") ON DELETE CASCADE
 );
 
 CREATE TABLE "CaseLog" (

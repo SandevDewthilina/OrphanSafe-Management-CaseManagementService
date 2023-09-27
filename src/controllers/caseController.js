@@ -5,6 +5,9 @@ import {
   getCaseInfoByCaseIdasync,
   getCaseInvitationByUserIdasync,
   createCaseLogAsync,
+  getCaseNameListAsync,
+  deleteCaseLogAsync,
+  updateCaseStateAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -15,11 +18,11 @@ import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
 
 export const createCase = asyncHandler(async (req, res) => {
   const caseName = req.body.caseName;
-  const state = req.body.state;
   const childProfileID = req.body.childProfileID;
   const caseOwnerID = req.body.caseOwnerID;
-  const createID = req.body.createID;
-  await createCaseAsync(caseName, state, childProfileID, caseOwnerID, createID);
+  const createdID = req.body.createdID;
+  const description = req.body.description;
+  await createCaseAsync(caseName, childProfileID, caseOwnerID, createdID,description);
   return res.status(200).json({
     success: true,
     message: "successfully created a case",
@@ -61,6 +64,32 @@ export const createCaseLog = asyncHandler(async (req, res) => {
     message: "successfully created a caseLog",
   });
 });
+
+
+export const getCaseNameList = asyncHandler(async (req, res) => {
+  const result = await getCaseNameListAsync();
+  return res.status(200).json({
+    success: true,
+    CaseNameList: result,
+  });
+});
+
+export const deleteCaseLog = asyncHandler(async (req, res) => {
+  await deleteCaseLogAsync(req.body.caseId);
+  return res.status(200).json({
+    success: true,
+    message: "successfully deleted",
+  });
+});
+
+export const updateCaseState = asyncHandler(async (req, res) => {
+  const response = req.body.response;
+  const caseId = req.body.caseId;
+  await updateCaseStateAsync(response, caseId);
+  return res.status(200).json({
+    success: true,
+    message: "successfully updated",
+  });
 
 export const requestCaseDoc = asyncHandler(async (req, res) => {
   const resp = await RPCRequest(DOCUMENT_SERVICE_RPC, {event: 'URL_FOR_KEYS', data: ['s12ui121/profile/fde0c464-380d-464c-b617-da0158e18157--FirstRegistrationMonth.png']})

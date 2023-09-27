@@ -2,14 +2,14 @@ import DatabaseHandler from "../lib/database/DatabaseHandler.js";
 
 export const createCaseAsync = async (
   caseName,
-  state,
   childProfileID,
   caseOwnerID,
-  createID
+  createID,
+  description
 ) => {
   await DatabaseHandler.executeSingleQueryAsync(
-    'INSERT INTO "Case" ("CaseName", "State", "ChildProfileId","CaseOwnerId","CreateBy") VALUES ($1, $2, $3, $4, $5)',
-    [caseName, state, childProfileID, caseOwnerID, createID]
+    `INSERT INTO "Case" ("CaseName","State", "ChildProfileId","CaseOwnerId","CreatedBy","Description") VALUES ($1,$2, $3, $4, $5,$6)`,
+    [caseName, 'INVITED' ,childProfileID, caseOwnerID, createID,description]
   );
 };
 
@@ -20,7 +20,7 @@ export const getCaseListasync = async () => {
       y."CaseName",
       cp."Id" AS "ChildId",
       cp."FullName" AS "ChildName",
-      y."CreateBy", y."CaseOwner",
+      y."CreatedBy", y."CaseOwner",
       (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1)
     FROM
       (SELECT
@@ -28,19 +28,21 @@ export const getCaseListasync = async () => {
         v."Name" AS "CaseOwner",
         x."ChildProfileId",
         x."CaseId",
-        x."CaseName"
+        x."CaseName",
+        x."CreatedBy"
       FROM
         (SELECT
           u."Name",
           c."ChildProfileId",
           c."CaseOwnerId",
           c."Id" AS "CaseId",
-          c."CaseName"
+          c."CaseName",
+		  c."CreatedBy"
         FROM
           "Case" AS c
         INNER JOIN
           "User" AS u
-        ON u."Id" = c."CreateBy") AS x
+        ON u."Id" = c."CreatedBy") AS x
       INNER JOIN
         "User" AS v
       ON v."Id" = x."CaseOwnerId") AS y
@@ -60,7 +62,7 @@ export const getCaseInfoByCaseIdasync = async (caseId) => {
       y."Description",
       cp."Id" AS "ChildId",
       cp."FullName" AS "ChildName",
-      y."CreateBy",
+      y."CreatedBy",
       y."CaseOwner",
       (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1),
       (SELECT "LoggedDateTime" AS "StartedDate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" DESC LIMIT 1)
@@ -107,7 +109,7 @@ export const getCaseInvitationByUserIdasync = async (userId) => {
       (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreateBy")
     FROM
       "Case" AS c
-    WHERE "State"='pending' AND "CaseOwnerId"= $1`,
+    WHERE "State"='INVITED' AND "CaseOwnerId"= $1`,
     [userId]
   );
   return result;
@@ -120,8 +122,29 @@ export const createCaseLogAsync = async (
   logDocumentId
 ) => {
   await DatabaseHandler.executeSingleQueryAsync(
-    `INSERT INTO "CaseLog" ("CaseId", "LogDescription","DocumentCollectionID","Description") VALUES ($1, $2, $3, $4)`,
+    `INSERT INTO "CaseLog" ("CaseId", "LogName","DocumentCollectionID","Description") VALUES ($1, $2, $3, $4)`,
     [caseId, logName, logDocumentId, logDescription]
   );
-  print("sa");
+};
+
+export const getCaseNameListAsync = async () => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT "Id" AS "CaseId","CaseName" FROM "Case"`
+  );
+};
+
+export const deleteCaseLogAsync = async (caseId) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `DELETE FROM "CaseLog" WHERE "Id" = (SELECT Max("Id") FROM "CaseLog" WHERE "CaseId" = $1) RETURNING *`,
+    [caseId]
+  );
+};
+
+export const updateCaseStateAsync = async (response, caseId) => {
+  await DatabaseHandler.executeSingleQueryAsync(`
+    UPDATE "Case"
+      SET "State" = $1
+    WHERE "Id" = $2`,
+    [response, caseId]
+  );
 };
