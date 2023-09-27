@@ -2,7 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import caseRoutes from "./routes/caseRoutes.js";
 import { runMigrations } from "./migrations/index.js";
-import { RPCObserver } from "./lib/rabbitmq/index.js";
+import { RPCObserver, RPCRequest } from "./lib/rabbitmq/index.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import { PORT, CASE_SERVICE_RPC } from "./config/index.js";
 
