@@ -9,47 +9,29 @@ export const createCaseAsync = async (
 ) => {
   await DatabaseHandler.executeSingleQueryAsync(
     `INSERT INTO "Case" ("CaseName","State", "ChildProfileId","CaseOwnerId","CreatedBy","Description") VALUES ($1,$2, $3, $4, $5,$6)`,
-    [caseName, 'INVITED' ,childProfileID, caseOwnerID, createID,description]
+    [caseName, "INVITED", childProfileID, caseOwnerID, createID, description]
   );
 };
 
-export const getCaseListasync = async () => {
+export const getCaseListasync = async (orphanageId) => {
+  console.log(orphanageId);
   const result = await DatabaseHandler.executeSingleQueryAsync(
     `SELECT 
-      y."CaseId",
-      y."CaseName",
-      cp."Id" AS "ChildId",
-      cp."FullName" AS "ChildName",
-      y."CreatedBy", y."CaseOwner",
-      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1)
+      c."Id",
+      c."CaseName",
+      c."State",
+      u."Name" AS "SocialWorkerName",
+      (SELECT "Name" AS "CreatedBy"FROM "User" WHERE "Id"= c."CreatedBy"),
+      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE "CaseLog"."CaseId" = c."Id" ORDER BY "LoggedDateTime" ASC LIMIT 1),
+      (SELECT "FullName" as "ChildName"FROM "ChildProfile" AS cp WHERE cp."Id" = c."ChildProfileId")
     FROM
-      (SELECT
-        x."Name" AS "CreateBy",
-        v."Name" AS "CaseOwner",
-        x."ChildProfileId",
-        x."CaseId",
-        x."CaseName",
-        x."CreatedBy"
-      FROM
-        (SELECT
-          u."Name",
-          c."ChildProfileId",
-          c."CaseOwnerId",
-          c."Id" AS "CaseId",
-          c."CaseName",
-		  c."CreatedBy"
-        FROM
-          "Case" AS c
-        INNER JOIN
-          "User" AS u
-        ON u."Id" = c."CreatedBy") AS x
-      INNER JOIN
-        "User" AS v
-      ON v."Id" = x."CaseOwnerId") AS y
-    INNER JOIN
-      "ChildProfile" AS cp
-    ON y."ChildProfileId" = cp."Id"`,
-    []
+      "Case" AS c
+    INNER JOIN "User" AS u
+      INNER JOIN "SocialWorker" AS sw
+      ON sw."UserId" = u."Id"
+    ON sw."Id" = c."CaseOwnerId"
+    WHERE "OrphanageId" = $1 `,
+    [orphanageId]
   );
   return result;
 };
@@ -141,7 +123,8 @@ export const deleteCaseLogAsync = async (caseId) => {
 };
 
 export const updateCaseStateAsync = async (response, caseId) => {
-  await DatabaseHandler.executeSingleQueryAsync(`
+  await DatabaseHandler.executeSingleQueryAsync(
+    `
     UPDATE "Case"
       SET "State" = $1
     WHERE "Id" = $2`,

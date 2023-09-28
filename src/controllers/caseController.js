@@ -36,7 +36,7 @@ export const createCase = asyncHandler(async (req, res) => {
 });
 
 export const getCaseList = asyncHandler(async (req, res) => {
-  const result = await getCaseListasync();
+  const result = await getCaseListasync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     caseList: result,

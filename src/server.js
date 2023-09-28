@@ -14,7 +14,7 @@ app.use(cookieParser());
 // runMigrations()
 
 // RPCObserver
-RPCObserver(CASE_SERVICE_RPC);
+// RPCObserver(CASE_SERVICE_RPC);
 
 // routes
 app.use("/api/case", caseRoutes);
