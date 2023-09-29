@@ -44,7 +44,7 @@ export const getCaseList = asyncHandler(async (req, res) => {
 });
 
 export const getCaseInfoByCaseId = asyncHandler(async (req, res) => {
-  const result = await getCaseInfoByCaseIdasync(req.body.caseId);
+  const result = await getCaseInfoByCaseIdasync(parseInt(req.query.caseId));
   return res.status(200).json({
     success: true,
     caseInfo: result[0],

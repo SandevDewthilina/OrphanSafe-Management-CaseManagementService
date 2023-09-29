@@ -39,43 +39,23 @@ export const getCaseListasync = async (orphanageId) => {
 export const getCaseInfoByCaseIdasync = async (caseId) => {
   const result = await DatabaseHandler.executeSingleQueryAsync(
     `SELECT 
-      y."CaseId",
-      y."CaseName",
-      y."Description",
-      cp."Id" AS "ChildId",
-      cp."FullName" AS "ChildName",
-      y."CreatedBy",
-      y."CaseOwner",
-      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" ASC LIMIT 1),
-      (SELECT "LoggedDateTime" AS "StartedDate" FROM "CaseLog" WHERE y."CaseId" = "CaseId" ORDER BY "LoggedDateTime" DESC LIMIT 1)
+      c."Id",
+      c."CaseName",
+      c."State",
+      u."Name" AS "SocialWorkerName",
+      c."Description",
+      c."ChildProfileId",
+      c."CreatedAt",
+      (SELECT "Name" AS "CreatedBy"FROM "User" WHERE "Id"= c."CreatedBy"),
+      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE "CaseLog"."CaseId" = c."Id" ORDER BY "LoggedDateTime" ASC LIMIT 1),
+      (SELECT "FullName" as "ChildName"FROM "ChildProfile" AS cp WHERE cp."Id" = c."ChildProfileId")
     FROM
-      (SELECT
-        x."Name" AS "CreateBy",
-        v."Name" AS "CaseOwner",
-        x."ChildProfileId",
-        x."CaseId",
-        x."CaseName",
-        x."Description"
-      FROM
-        (SELECT
-          u."Name",
-          c."ChildProfileId",
-          c."CaseOwnerId",
-          c."Id" AS "CaseId",
-          c."CaseName",
-          c."Description"
-        FROM
-          "Case" AS c
-        INNER JOIN
-          "User" AS u
-        ON u."Id" = c."CreateBy") AS x
-      INNER JOIN
-        "User" AS v
-      ON v."Id" = x."CaseOwnerId") AS y
-    INNER JOIN
-      "ChildProfile" AS cp
-    ON y."ChildProfileId" = cp."Id"
-    WHERE "CaseId"= $1`,
+      "Case" AS c
+    INNER JOIN "User" AS u
+      INNER JOIN "SocialWorker" AS sw
+      ON sw."UserId" = u."Id"
+    ON sw."Id" = c."CaseOwnerId"
+    WHERE c."Id" = $1`,
     [caseId]
   );
   return result;
