@@ -17,18 +17,7 @@ import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
 // @access Private
 
 export const createCase = asyncHandler(async (req, res) => {
-  const caseName = req.body.caseName;
-  const childProfileID = req.body.childProfileID;
-  const caseOwnerID = req.body.caseOwnerID;
-  const createdID = req.body.createdID;
-  const description = req.body.description;
-  await createCaseAsync(
-    caseName,
-    childProfileID,
-    caseOwnerID,
-    createdID,
-    description
-  );
+  await createCaseAsync(req.userInfo.userId, req.body);
   return res.status(200).json({
     success: true,
     message: "successfully created a case",

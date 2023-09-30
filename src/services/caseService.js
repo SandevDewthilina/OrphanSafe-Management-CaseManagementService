@@ -1,15 +1,12 @@
 import DatabaseHandler from "../lib/database/DatabaseHandler.js";
 
 export const createCaseAsync = async (
-  caseName,
-  childProfileID,
-  caseOwnerID,
-  createID,
-  description
+  createId,
+  { caseName, childProfileId, caseOwnerId, description }
 ) => {
-  await DatabaseHandler.executeSingleQueryAsync(
-    `INSERT INTO "Case" ("CaseName","State", "ChildProfileId","CaseOwnerId","CreatedBy","Description") VALUES ($1,$2, $3, $4, $5,$6)`,
-    [caseName, "INVITED", childProfileID, caseOwnerID, createID, description]
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "Case" ("CaseName","State", "ChildProfileId","CaseOwnerId","CreatedBy","Description") VALUES ($1,$2, $3, $4, $5,$6) RETURNING *`,
+    [caseName, "INVITED", childProfileId, caseOwnerId, createId, description]
   );
 };
 
