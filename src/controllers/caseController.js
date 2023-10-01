@@ -41,7 +41,7 @@ export const getCaseInfoByCaseId = asyncHandler(async (req, res) => {
 });
 
 export const getCaseInvitationByUserId = asyncHandler(async (req, res) => {
-  const result = await getCaseInvitationByUserIdasync(req.body.userId);
+  const result = await getCaseInvitationByUserIdasync(req.userInfo.userId);
   return res.status(200).json({
     success: true,
     caseInvitations: result,

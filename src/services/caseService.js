@@ -65,10 +65,12 @@ export const getCaseInvitationByUserIdasync = async (userId) => {
       c."CaseName",
       c."Description",
       (SELECT "FullName" AS "ChildName" FROM "ChildProfile" WHERE "Id"=c."ChildProfileId"),
-      (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreateBy")
+      (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreatedBy")
     FROM
       "Case" AS c
-    WHERE "State"='INVITED' AND "CaseOwnerId"= $1`,
+    INNER JOIN "SocialWorker" as sw
+    ON sw."Id"= c."CaseOwnerId"   
+    WHERE "State"='INVITED'and sw."UserId"=$1`,
     [userId]
   );
   return result;
