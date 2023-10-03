@@ -17,18 +17,7 @@ import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
 // @access Private
 
 export const createCase = asyncHandler(async (req, res) => {
-  const caseName = req.body.caseName;
-  const childProfileID = req.body.childProfileID;
-  const caseOwnerID = req.body.caseOwnerID;
-  const createdID = req.body.createdID;
-  const description = req.body.description;
-  await createCaseAsync(
-    caseName,
-    childProfileID,
-    caseOwnerID,
-    createdID,
-    description
-  );
+  await createCaseAsync(req.userInfo.userId, req.body);
   return res.status(200).json({
     success: true,
     message: "successfully created a case",
@@ -36,7 +25,7 @@ export const createCase = asyncHandler(async (req, res) => {
 });
 
 export const getCaseList = asyncHandler(async (req, res) => {
-  const result = await getCaseListasync();
+  const result = await getCaseListasync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     caseList: result,
@@ -44,7 +33,7 @@ export const getCaseList = asyncHandler(async (req, res) => {
 });
 
 export const getCaseInfoByCaseId = asyncHandler(async (req, res) => {
-  const result = await getCaseInfoByCaseIdasync(req.body.caseId);
+  const result = await getCaseInfoByCaseIdasync(parseInt(req.query.caseId));
   return res.status(200).json({
     success: true,
     caseInfo: result[0],
@@ -52,7 +41,7 @@ export const getCaseInfoByCaseId = asyncHandler(async (req, res) => {
 });
 
 export const getCaseInvitationByUserId = asyncHandler(async (req, res) => {
-  const result = await getCaseInvitationByUserIdasync(req.body.userId);
+  const result = await getCaseInvitationByUserIdasync(req.userInfo.userId);
   return res.status(200).json({
     success: true,
     caseInvitations: result,

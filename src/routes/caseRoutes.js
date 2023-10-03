@@ -8,8 +8,7 @@ import {
   getCaseNameList,
   deleteCaseLog,
   updateCaseState,
-  requestCaseDoc
-
+  requestCaseDoc,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -23,11 +22,11 @@ router
   .route("/getCaseInvitationByUserId")
   .get(protect, getCaseInvitationByUserId);
 
-router.route("/createCaseLog").post(protect, createCaseLog)
+router.route("/createCaseLog").post(protect, createCaseLog);
 router.route("/getCaseNameList").get(protect, getCaseNameList);
 router.route("/deleteCaseLog").delete(protect, deleteCaseLog);
 router.route("/updateCaseState").put(protect, updateCaseState);
 
-router.route("/createCaseLog").post(protect,createCaseLog)
+router.route("/createCaseLog").post(protect, createCaseLog);
 
 export default router;
