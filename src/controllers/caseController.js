@@ -8,6 +8,7 @@ import {
   getCaseNameListAsync,
   deleteCaseLogAsync,
   updateCaseStateAsync,
+  getCaseListByUserIdAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -26,6 +27,14 @@ export const createCase = asyncHandler(async (req, res) => {
 
 export const getCaseList = asyncHandler(async (req, res) => {
   const result = await getCaseListasync(req.userInfo.orphanageId);
+  return res.status(200).json({
+    success: true,
+    caseList: result,
+  });
+});
+
+export const getCaseListByUserId = asyncHandler(async (req, res) => {
+  const result = await getCaseListByUserIdAsync(req.userInfo.userId);
   return res.status(200).json({
     success: true,
     caseList: result,

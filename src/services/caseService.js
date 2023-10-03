@@ -11,7 +11,6 @@ export const createCaseAsync = async (
 };
 
 export const getCaseListasync = async (orphanageId) => {
-  console.log(orphanageId);
   const result = await DatabaseHandler.executeSingleQueryAsync(
     `SELECT 
       c."Id",
@@ -29,6 +28,25 @@ export const getCaseListasync = async (orphanageId) => {
     ON sw."Id" = c."CaseOwnerId"
     WHERE "OrphanageId" = $1 `,
     [orphanageId]
+  );
+  return result;
+};
+
+export const getCaseListByUserIdAsync = async (userId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT 
+      c."Id" AS "CaseId",
+      c."CaseName",
+      c."Description",
+      (SELECT "FullName" AS "ChildName" FROM "ChildProfile" WHERE "Id"=c."ChildProfileId"),
+      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE "CaseLog"."CaseId" = c."Id" ORDER BY "LoggedDateTime" ASC LIMIT 1),
+      (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreatedBy")
+    FROM
+      "Case" AS c
+    INNER JOIN "SocialWorker" as sw
+    ON sw."Id"= c."CaseOwnerId"   
+    WHERE "State"='ONGOING'and sw."UserId"=$1 `,
+    [userId]
   );
   return result;
 };
