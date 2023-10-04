@@ -107,10 +107,10 @@ export const getCaseNameListAsync = async () => {
   );
 };
 
-export const deleteCaseLogAsync = async (caseId) => {
+export const deleteCaseLogAsync = async (logId) => {
   await DatabaseHandler.executeSingleQueryAsync(
-    `DELETE FROM "CaseLog" WHERE "Id" = (SELECT Max("Id") FROM "CaseLog" WHERE "CaseId" = $1) RETURNING *`,
-    [caseId]
+    `DELETE FROM "CaseLog" WHERE "Id" = $1 RETURNING *`,
+    [logId]
   );
 };
 
@@ -128,5 +128,17 @@ export const updateCaseStateAsync = async (response, caseId) => {
       SET "State" = $1
     WHERE "Id" = $2`,
     [response, caseId]
+  );
+};
+
+export const updateCaseLogAsync = async ({ id, name, description }) => {
+  await DatabaseHandler.executeSingleQueryAsync(
+    `
+    UPDATE "CaseLog"
+      SET
+        "LogName" = $1,
+        "DEscription" = $2
+    WHERE "Id" = $2`,
+    [id, name, description]
   );
 };
