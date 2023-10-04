@@ -8,6 +8,8 @@ import {
   getCaseNameListAsync,
   deleteCaseLogAsync,
   updateCaseStateAsync,
+  getCaseListByUserIdAsync,
+  getCaseLogsByCaseIdAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -32,6 +34,14 @@ export const getCaseList = asyncHandler(async (req, res) => {
   });
 });
 
+export const getCaseListByUserId = asyncHandler(async (req, res) => {
+  const result = await getCaseListByUserIdAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    caseList: result,
+  });
+});
+
 export const getCaseInfoByCaseId = asyncHandler(async (req, res) => {
   const result = await getCaseInfoByCaseIdasync(parseInt(req.query.caseId));
   return res.status(200).json({
@@ -49,14 +59,10 @@ export const getCaseInvitationByUserId = asyncHandler(async (req, res) => {
 });
 
 export const createCaseLog = asyncHandler(async (req, res) => {
-  const caseId = req.body.caseId;
-  const logName = req.body.logName;
-  const logDescription = req.body.logDescription;
-  const logDocumentId = req.body.logDocumentId;
-  await createCaseLogAsync(caseId, logName, logDescription, logDocumentId);
+  const result = await createCaseLogAsync(req.body);
   return res.status(200).json({
     success: true,
-    message: "successfully created a caseLog",
+    message: result,
   });
 });
 
@@ -69,10 +75,19 @@ export const getCaseNameList = asyncHandler(async (req, res) => {
 });
 
 export const deleteCaseLog = asyncHandler(async (req, res) => {
+  console.log(req.body.caseId);
   await deleteCaseLogAsync(req.body.caseId);
   return res.status(200).json({
     success: true,
     message: "successfully deleted",
+  });
+});
+
+export const getCaseLogsByCaseId = asyncHandler(async (req, res) => {
+  const result = await getCaseLogsByCaseIdAsync(parseInt(req.query.caseId));
+  return res.status(200).json({
+    success: true,
+    caseLogs: result,
   });
 });
 

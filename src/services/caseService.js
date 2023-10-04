@@ -11,7 +11,6 @@ export const createCaseAsync = async (
 };
 
 export const getCaseListasync = async (orphanageId) => {
-  console.log(orphanageId);
   const result = await DatabaseHandler.executeSingleQueryAsync(
     `SELECT 
       c."Id",
@@ -29,6 +28,25 @@ export const getCaseListasync = async (orphanageId) => {
     ON sw."Id" = c."CaseOwnerId"
     WHERE "OrphanageId" = $1 `,
     [orphanageId]
+  );
+  return result;
+};
+
+export const getCaseListByUserIdAsync = async (userId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT 
+      c."Id" AS "CaseId",
+      c."CaseName",
+      c."Description",
+      (SELECT "FullName" AS "ChildName" FROM "ChildProfile" WHERE "Id"=c."ChildProfileId"),
+      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE "CaseLog"."CaseId" = c."Id" ORDER BY "LoggedDateTime" ASC LIMIT 1),
+      (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreatedBy")
+    FROM
+      "Case" AS c
+    INNER JOIN "SocialWorker" as sw
+    ON sw."Id"= c."CaseOwnerId"   
+    WHERE "State"='ONGOING'and sw."UserId"=$1 `,
+    [userId]
   );
   return result;
 };
@@ -76,15 +94,10 @@ export const getCaseInvitationByUserIdasync = async (userId) => {
   return result;
 };
 
-export const createCaseLogAsync = async (
-  caseId,
-  logName,
-  logDescription,
-  logDocumentId
-) => {
+export const createCaseLogAsync = async ({ caseId, name, description }) => {
   await DatabaseHandler.executeSingleQueryAsync(
-    `INSERT INTO "CaseLog" ("CaseId", "LogName","DocumentCollectionID","Description") VALUES ($1, $2, $3, $4)`,
-    [caseId, logName, logDocumentId, logDescription]
+    `INSERT INTO "CaseLog" ("CaseId", "LogName","Description") VALUES ($1, $2, $3) RETURNING *`,
+    [caseId, name, description]
   );
 };
 
@@ -97,6 +110,13 @@ export const getCaseNameListAsync = async () => {
 export const deleteCaseLogAsync = async (caseId) => {
   await DatabaseHandler.executeSingleQueryAsync(
     `DELETE FROM "CaseLog" WHERE "Id" = (SELECT Max("Id") FROM "CaseLog" WHERE "CaseId" = $1) RETURNING *`,
+    [caseId]
+  );
+};
+
+export const getCaseLogsByCaseIdAsync = async (caseId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT cl.*, c."CaseName" FROM "CaseLog" AS cl INNER JOIN "Case" AS c on c."Id"= cl."CaseId" WHERE "CaseId"=$1`,
     [caseId]
   );
 };
