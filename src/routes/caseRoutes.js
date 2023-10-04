@@ -10,6 +10,7 @@ import {
   updateCaseState,
   requestCaseDoc,
   getCaseListByUserId,
+  getCaseLogsByCaseId,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -26,6 +27,7 @@ router
 
 router.route("/createCaseLog").post(protect, createCaseLog);
 router.route("/getCaseNameList").get(protect, getCaseNameList);
+router.route("/getCaseLogsByCaseId").get(protect, getCaseLogsByCaseId);
 router.route("/deleteCaseLog").delete(protect, deleteCaseLog);
 router.route("/updateCaseState").put(protect, updateCaseState);
 

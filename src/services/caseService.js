@@ -94,15 +94,10 @@ export const getCaseInvitationByUserIdasync = async (userId) => {
   return result;
 };
 
-export const createCaseLogAsync = async (
-  caseId,
-  logName,
-  logDescription,
-  logDocumentId
-) => {
+export const createCaseLogAsync = async ({ caseId, name, description }) => {
   await DatabaseHandler.executeSingleQueryAsync(
-    `INSERT INTO "CaseLog" ("CaseId", "LogName","DocumentCollectionID","Description") VALUES ($1, $2, $3, $4)`,
-    [caseId, logName, logDocumentId, logDescription]
+    `INSERT INTO "CaseLog" ("CaseId", "LogName","Description") VALUES ($1, $2, $3) RETURNING *`,
+    [caseId, name, description]
   );
 };
 
@@ -115,6 +110,13 @@ export const getCaseNameListAsync = async () => {
 export const deleteCaseLogAsync = async (caseId) => {
   await DatabaseHandler.executeSingleQueryAsync(
     `DELETE FROM "CaseLog" WHERE "Id" = (SELECT Max("Id") FROM "CaseLog" WHERE "CaseId" = $1) RETURNING *`,
+    [caseId]
+  );
+};
+
+export const getCaseLogsByCaseIdAsync = async (caseId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT cl.*, c."CaseName" FROM "CaseLog" AS cl INNER JOIN "Case" AS c on c."Id"= cl."CaseId" WHERE "CaseId"=$1`,
     [caseId]
   );
 };
