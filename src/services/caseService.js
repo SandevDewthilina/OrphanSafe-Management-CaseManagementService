@@ -121,6 +121,13 @@ export const getCaseLogsByCaseIdAsync = async (caseId) => {
   );
 };
 
+export const getCaseLogBycaseLogIdAsync = async (logId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT * FROM "CaseLog" WHERE "Id"=$1`,
+    [logId]
+  );
+};
+
 export const updateCaseStateAsync = async (response, caseId) => {
   await DatabaseHandler.executeSingleQueryAsync(
     `
@@ -133,12 +140,11 @@ export const updateCaseStateAsync = async (response, caseId) => {
 
 export const updateCaseLogAsync = async ({ id, name, description }) => {
   await DatabaseHandler.executeSingleQueryAsync(
-    `
-    UPDATE "CaseLog"
+    `UPDATE "CaseLog"
       SET
         "LogName" = $1,
-        "DEscription" = $2
-    WHERE "Id" = $2`,
-    [id, name, description]
+        "Description" = $2
+    WHERE "Id" = $3`,
+    [name, description, id]
   );
 };

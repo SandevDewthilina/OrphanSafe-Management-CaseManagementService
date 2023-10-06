@@ -11,6 +11,7 @@ import {
   getCaseListByUserIdAsync,
   getCaseLogsByCaseIdAsync,
   updateCaseLogAsync,
+  getCaseLogBycaseLogIdAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -91,6 +92,14 @@ export const getCaseLogsByCaseId = asyncHandler(async (req, res) => {
   });
 });
 
+export const getCaseLogBycaseLogId = asyncHandler(async (req, res) => {
+  const result = await getCaseLogBycaseLogIdAsync(parseInt(req.query.logId));
+  return res.status(200).json({
+    success: true,
+    caseLog: result[0],
+  });
+});
+
 export const updateCaseState = asyncHandler(async (req, res) => {
   const response = req.body.response;
   const caseId = req.body.caseId;
@@ -102,7 +111,6 @@ export const updateCaseState = asyncHandler(async (req, res) => {
 });
 
 export const updateCaseLog = asyncHandler(async (req, res) => {
-  console.log(req.body);
   await updateCaseLogAsync(req.body);
   return res.status(200).json({
     success: true,

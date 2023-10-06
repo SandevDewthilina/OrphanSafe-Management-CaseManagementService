@@ -12,6 +12,7 @@ import {
   getCaseListByUserId,
   getCaseLogsByCaseId,
   updateCaseLog,
+  getCaseLogBycaseLogId,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -32,6 +33,7 @@ router.route("/getCaseLogsByCaseId").get(protect, getCaseLogsByCaseId);
 router.route("/deleteCaseLog").delete(protect, deleteCaseLog);
 router.route("/updateCaseState").put(protect, updateCaseState);
 router.route("/updateCaseLog").put(protect, updateCaseLog);
+router.route("/getCaseLogBycaseLogId").get(protect, getCaseLogBycaseLogId);
 
 router.route("/createCaseLog").post(protect, createCaseLog);
 
