@@ -10,6 +10,7 @@ import {
   updateCaseStateAsync,
   getCaseListByUserIdAsync,
   getCaseLogsByCaseIdAsync,
+  updateCaseLogAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -75,8 +76,7 @@ export const getCaseNameList = asyncHandler(async (req, res) => {
 });
 
 export const deleteCaseLog = asyncHandler(async (req, res) => {
-  console.log(req.body.caseId);
-  await deleteCaseLogAsync(req.body.caseId);
+  await deleteCaseLogAsync(req.body.logId);
   return res.status(200).json({
     success: true,
     message: "successfully deleted",
@@ -95,6 +95,15 @@ export const updateCaseState = asyncHandler(async (req, res) => {
   const response = req.body.response;
   const caseId = req.body.caseId;
   await updateCaseStateAsync(response, caseId);
+  return res.status(200).json({
+    success: true,
+    message: "successfully updated",
+  });
+});
+
+export const updateCaseLog = asyncHandler(async (req, res) => {
+  console.log(req.body);
+  await updateCaseLogAsync(req.body);
   return res.status(200).json({
     success: true,
     message: "successfully updated",
