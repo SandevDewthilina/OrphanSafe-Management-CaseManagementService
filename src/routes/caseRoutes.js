@@ -15,6 +15,7 @@ import {
   getCaseLogBycaseLogId,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
+import { upload } from "../middleware/s3UploadMiddleware.js";
 
 const router = express.Router();
 
@@ -27,7 +28,15 @@ router
   .route("/getCaseInvitationByUserId")
   .get(protect, getCaseInvitationByUserId);
 
-router.route("/createCaseLog").post(protect, createCaseLog);
+router
+  .route("/createCaseLog")
+  .post(
+    protect,
+    upload.fields([
+      { name: "caseLogDoc" },
+    ]),
+    createCaseLog
+  );
 router.route("/getCaseNameList").get(protect, getCaseNameList);
 router.route("/getCaseLogsByCaseId").get(protect, getCaseLogsByCaseId);
 router.route("/deleteCaseLog").delete(protect, deleteCaseLog);

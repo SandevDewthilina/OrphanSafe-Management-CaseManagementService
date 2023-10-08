@@ -1,4 +1,5 @@
 import DatabaseHandler from "../lib/database/DatabaseHandler.js";
+import { uploadSingleFileAsync } from "../lib/aws/index.js";
 
 export const createCaseAsync = async (
   createId,
@@ -73,6 +74,7 @@ export const getCaseInfoByCaseIdasync = async (caseId) => {
     WHERE c."Id" = $1`,
     [caseId]
   );
+  console.log(result);
   return result;
 };
 
@@ -94,11 +96,18 @@ export const getCaseInvitationByUserIdasync = async (userId) => {
   return result;
 };
 
-export const createCaseLogAsync = async ({ caseId, name, description }) => {
-  await DatabaseHandler.executeSingleQueryAsync(
+export const createCaseLogAsync = async (
+  { caseId, name, description },
+  files
+) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
     `INSERT INTO "CaseLog" ("CaseId", "LogName","Description") VALUES ($1, $2, $3) RETURNING *`,
     [caseId, name, description]
   );
+  for (const fieldName in files) {
+    const file = files[fieldName][0];
+    await uploadSingleFileAsync(`caseLog/${result[0].Id}/${fieldName}/`, file);
+  }
 };
 
 export const getCaseNameListAsync = async () => {
@@ -147,4 +156,14 @@ export const updateCaseLogAsync = async ({ id, name, description }) => {
     WHERE "Id" = $3`,
     [name, description, id]
   );
+};
+
+export const getCaseLogByLogNameAsync = async (name) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `
+    SELECT * FROM "CaseLog" WHERE "LogName"=$1
+    `,
+    [name]
+  );
+  return result;
 };

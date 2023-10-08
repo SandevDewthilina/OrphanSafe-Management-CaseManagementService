@@ -12,6 +12,7 @@ import {
   getCaseLogsByCaseIdAsync,
   updateCaseLogAsync,
   getCaseLogBycaseLogIdAsync,
+  getCaseLogByLogNameAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -61,11 +62,19 @@ export const getCaseInvitationByUserId = asyncHandler(async (req, res) => {
 });
 
 export const createCaseLog = asyncHandler(async (req, res) => {
-  const result = await createCaseLogAsync(req.body);
-  return res.status(200).json({
-    success: true,
-    message: result,
-  });
+  const reqBody = JSON.parse(req.body.otherInfo);
+  const exist = await getCaseLogByLogNameAsync(reqBody.name);
+  if (exist.length == 0) {
+    const result = await createCaseLogAsync(reqBody,req.files);
+    return res.status(200).json({
+      success: true,
+      message: result,
+    });
+  } else {
+    return res.status(400).json({
+      message: "Case log name already exist",
+    });
+  }
 });
 
 export const getCaseNameList = asyncHandler(async (req, res) => {
@@ -111,12 +120,14 @@ export const updateCaseState = asyncHandler(async (req, res) => {
 });
 
 export const updateCaseLog = asyncHandler(async (req, res) => {
+  console.log(req.body);
   await updateCaseLogAsync(req.body);
   return res.status(200).json({
     success: true,
     message: "successfully updated",
   });
 });
+
 export const requestCaseDoc = asyncHandler(async (req, res) => {
   const resp = await RPCRequest(DOCUMENT_SERVICE_RPC, {
     event: "URL_FOR_KEYS",
