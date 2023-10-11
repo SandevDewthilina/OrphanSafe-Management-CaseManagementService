@@ -167,3 +167,13 @@ export const getCaseLogByLogNameAsync = async (name) => {
   );
   return result;
 };
+
+export const getCaseNameAsync = async (name) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `
+    SELECT * FROM "Case" WHERE "CaseName"=$1
+    `,
+    [name]
+  );
+  return result;
+};
