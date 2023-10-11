@@ -23,3 +23,7 @@ export const GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CRE
 export const CASE_SERVICE_BINDING_KEY = process.env.CASE_SERVICE_BINDING_KEY
 export const CASE_SERVICE_RPC = process.env.CASE_SERVICE_RPC
 export const APP_PASS_SECRET = process.env.APP_PASS_SECRET
+export const S3_REIGON = process.env.S3_REIGON;
+export const S3_ACCESS_KEY_ID = process.env.S3_ACCESS_KEY_ID;
+export const S3_SECRET_ACCESS_KEY = process.env.S3_SECRET_ACCESS_KEY;
+export const S3_BUCKET = process.env.S3_BUCKET;
