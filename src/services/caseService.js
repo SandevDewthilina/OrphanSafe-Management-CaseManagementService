@@ -177,3 +177,13 @@ export const getCaseNameAsync = async (name) => {
   );
   return result;
 };
+
+export const getOngoingCaseForDashBoardAsync = async (orphanageId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `
+    SELECT c."Id",c."CaseName",c."CreatedAt" FROM "Case" AS c INNER JOIN "User" AS u ON c."CreatedBy" = u."Id"  WHERE "OrphanageId"=$1 AND c."State"='INVITED' LIMIT 4
+    `,
+    [orphanageId]
+  );
+  return result;
+};
