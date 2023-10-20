@@ -5,7 +5,6 @@ import {
   getCaseInfoByCaseId,
   getCaseInvitationByUserId,
   createCaseLog,
-  getCaseNameList,
   deleteCaseLog,
   updateCaseState,
   requestCaseDoc,
@@ -14,6 +13,9 @@ import {
   updateCaseLog,
   getCaseLogBycaseLogId,
   getOngoingCaseForDashBoard,
+  ExternalDashboardChildProfiles,
+  ExternalDashboardPendingCase,
+  ExternalDashboardCaseAssign,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -47,5 +49,14 @@ router.route("/getCaseLogBycaseLogId").get(protect, getCaseLogBycaseLogId);
 router
   .route("/getOngoingCaseForDashBoard")
   .get(protect, getOngoingCaseForDashBoard);
+router
+  .route("/ExternalDashboardChildProfiles")
+  .get(protect, ExternalDashboardChildProfiles);
+router
+  .route("/ExternalDashboardPendingCase")
+  .get(protect, ExternalDashboardPendingCase);
+router
+  .route("/ExternalDashboardCaseAssign")
+  .get(protect, ExternalDashboardCaseAssign);
 
 export default router;
