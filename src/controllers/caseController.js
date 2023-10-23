@@ -19,6 +19,7 @@ import {
   ExternalDashboardPendingCaseAsync,
   ExternalDashboardCaseAssignAsync,
   getOngoingCaseForDashBoardAsync,
+  getCasesForOrphanageAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -176,6 +177,14 @@ export const ExternalDashboardCaseAssign = asyncHandler(async (req, res) => {
 
 export const ExternalDashboardPendingCase = asyncHandler(async (req, res) => {
   const result = await ExternalDashboardPendingCaseAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const getCasesForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getCasesForOrphanageAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     count: result[0].count,

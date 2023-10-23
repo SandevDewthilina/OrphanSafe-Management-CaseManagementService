@@ -264,3 +264,18 @@ export const ExternalDashboardCaseAssignAsync = async (userId) => {
   );
   return result;
 };
+
+export const getCasesForOrphanageAsync = async (orphanageId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `
+    SELECT
+      COUNT(c."Id")
+    FROM "Case" AS c
+    LEFT JOIN "User" AS u
+      ON c."CreatedBy" = u."Id"
+    WHERE u."OrphanageId" = $1
+    `,
+    [orphanageId]
+  );
+  return result;
+};
