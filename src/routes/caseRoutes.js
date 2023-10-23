@@ -12,10 +12,11 @@ import {
   getCaseLogsByCaseId,
   updateCaseLog,
   getCaseLogBycaseLogId,
-  getOngoingCaseForDashBoard,
+  getPendingCaseForDashBoard,
   ExternalDashboardChildProfiles,
   ExternalDashboardPendingCase,
   ExternalDashboardCaseAssign,
+  getOngoingCaseForDashBoard,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -46,6 +47,9 @@ router.route("/deleteCaseLog").delete(protect, deleteCaseLog);
 router.route("/updateCaseState").put(protect, updateCaseState);
 router.route("/updateCaseLog").put(protect, updateCaseLog);
 router.route("/getCaseLogBycaseLogId").get(protect, getCaseLogBycaseLogId);
+router
+  .route("/getPendingCaseForDashBoard")
+  .get(protect, getPendingCaseForDashBoard);
 router
   .route("/getOngoingCaseForDashBoard")
   .get(protect, getOngoingCaseForDashBoard);

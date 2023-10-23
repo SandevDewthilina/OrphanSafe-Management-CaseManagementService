@@ -14,10 +14,11 @@ import {
   getCaseLogBycaseLogIdAsync,
   getCaseLogByLogNameAsync,
   getCaseNameAsync,
-  getOngoingCaseForDashBoardAsync,
+  getPendingCaseForDashBoardAsync,
   ExternalDashboardChildProfilesAsync,
   ExternalDashboardPendingCaseAsync,
   ExternalDashboardCaseAssignAsync,
+  getOngoingCaseForDashBoardAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -121,10 +122,18 @@ export const getCaseLogBycaseLogId = asyncHandler(async (req, res) => {
   });
 });
 
-export const getOngoingCaseForDashBoard = asyncHandler(async (req, res) => {
-  const result = await getOngoingCaseForDashBoardAsync(
+export const getPendingCaseForDashBoard = asyncHandler(async (req, res) => {
+  const result = await getPendingCaseForDashBoardAsync(
     req.userInfo.orphanageId
   );
+  return res.status(200).json({
+    success: true,
+    cases: result,
+  });
+});
+
+export const getOngoingCaseForDashBoard = asyncHandler(async (req, res) => {
+  const result = await getOngoingCaseForDashBoardAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     cases: result,
