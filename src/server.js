@@ -6,7 +6,7 @@ import { RPCObserver, RPCRequest } from "./lib/rabbitmq/index.js";
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 import { PORT, CASE_SERVICE_RPC } from "./config/index.js";
 
-const app = express();
+export const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

@@ -14,6 +14,10 @@ import {
   getCaseLogBycaseLogIdAsync,
   getCaseLogByLogNameAsync,
   getCaseNameAsync,
+  getOngoingCaseForDashBoardAsync,
+  ExternalDashboardChildProfilesAsync,
+  ExternalDashboardPendingCaseAsync,
+  ExternalDashboardCaseAssignAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -117,6 +121,16 @@ export const getCaseLogBycaseLogId = asyncHandler(async (req, res) => {
   });
 });
 
+export const getOngoingCaseForDashBoard = asyncHandler(async (req, res) => {
+  const result = await getOngoingCaseForDashBoardAsync(
+    req.userInfo.orphanageId
+  );
+  return res.status(200).json({
+    success: true,
+    cases: result,
+  });
+});
+
 export const updateCaseState = asyncHandler(async (req, res) => {
   const response = req.body.response;
   const caseId = req.body.caseId;
@@ -128,11 +142,34 @@ export const updateCaseState = asyncHandler(async (req, res) => {
 });
 
 export const updateCaseLog = asyncHandler(async (req, res) => {
-  console.log(req.body);
   await updateCaseLogAsync(req.body);
   return res.status(200).json({
     success: true,
     message: "successfully updated",
+  });
+});
+
+export const ExternalDashboardChildProfiles = asyncHandler(async (req, res) => {
+  const result = await ExternalDashboardChildProfilesAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const ExternalDashboardCaseAssign = asyncHandler(async (req, res) => {
+  const result = await ExternalDashboardCaseAssignAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const ExternalDashboardPendingCase = asyncHandler(async (req, res) => {
+  const result = await ExternalDashboardPendingCaseAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
   });
 });
 
