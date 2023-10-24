@@ -14,10 +14,12 @@ import {
   getCaseLogBycaseLogIdAsync,
   getCaseLogByLogNameAsync,
   getCaseNameAsync,
-  getOngoingCaseForDashBoardAsync,
+  getPendingCaseForDashBoardAsync,
   ExternalDashboardChildProfilesAsync,
   ExternalDashboardPendingCaseAsync,
   ExternalDashboardCaseAssignAsync,
+  getOngoingCaseForDashBoardAsync,
+  getCasesForOrphanageAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -121,10 +123,18 @@ export const getCaseLogBycaseLogId = asyncHandler(async (req, res) => {
   });
 });
 
-export const getOngoingCaseForDashBoard = asyncHandler(async (req, res) => {
-  const result = await getOngoingCaseForDashBoardAsync(
+export const getPendingCaseForDashBoard = asyncHandler(async (req, res) => {
+  const result = await getPendingCaseForDashBoardAsync(
     req.userInfo.orphanageId
   );
+  return res.status(200).json({
+    success: true,
+    cases: result,
+  });
+});
+
+export const getOngoingCaseForDashBoard = asyncHandler(async (req, res) => {
+  const result = await getOngoingCaseForDashBoardAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     cases: result,
@@ -167,6 +177,14 @@ export const ExternalDashboardCaseAssign = asyncHandler(async (req, res) => {
 
 export const ExternalDashboardPendingCase = asyncHandler(async (req, res) => {
   const result = await ExternalDashboardPendingCaseAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const getCasesForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getCasesForOrphanageAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     count: result[0].count,

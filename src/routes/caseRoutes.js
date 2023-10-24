@@ -12,10 +12,12 @@ import {
   getCaseLogsByCaseId,
   updateCaseLog,
   getCaseLogBycaseLogId,
-  getOngoingCaseForDashBoard,
+  getPendingCaseForDashBoard,
   ExternalDashboardChildProfiles,
   ExternalDashboardPendingCase,
   ExternalDashboardCaseAssign,
+  getOngoingCaseForDashBoard,
+  getCasesForOrphanage,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -33,19 +35,16 @@ router
 
 router
   .route("/createCaseLog")
-  .post(
-    protect,
-    upload.fields([
-      { name: "caseLogDoc" },
-    ]),
-    createCaseLog
-  );
+  .post(protect, upload.fields([{ name: "caseLogDoc" }]), createCaseLog);
 //router.route("/getCaseNameList").get(protect, getCaseNameList);
 router.route("/getCaseLogsByCaseId").get(protect, getCaseLogsByCaseId);
 router.route("/deleteCaseLog").delete(protect, deleteCaseLog);
 router.route("/updateCaseState").put(protect, updateCaseState);
 router.route("/updateCaseLog").put(protect, updateCaseLog);
 router.route("/getCaseLogBycaseLogId").get(protect, getCaseLogBycaseLogId);
+router
+  .route("/getPendingCaseForDashBoard")
+  .get(protect, getPendingCaseForDashBoard);
 router
   .route("/getOngoingCaseForDashBoard")
   .get(protect, getOngoingCaseForDashBoard);
@@ -58,5 +57,6 @@ router
 router
   .route("/ExternalDashboardCaseAssign")
   .get(protect, ExternalDashboardCaseAssign);
+router.route("/getCasesForOrphanage").get(protect, getCasesForOrphanage);
 
 export default router;
