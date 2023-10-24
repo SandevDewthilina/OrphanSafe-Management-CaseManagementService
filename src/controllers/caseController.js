@@ -27,7 +27,7 @@ import {
   childExistProfileAsync,
   childExistCaseAsync,
   createCaseRequestAsync,
-  getCaseListByparentIdAsync,
+  getCaseListByParentIdAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -112,8 +112,8 @@ export const getCaseListByUserId = asyncHandler(async (req, res) => {
   });
 });
 
-export const getCaseListByparentId = asyncHandler(async (req, res) => {
-  const result = await getCaseListByUserIdAsync(req.userInfo.userId);
+export const getCaseListByParentId = asyncHandler(async (req, res) => {
+  const result = await getCaseListByParentIdAsync(req.userInfo.userId);
   return res.status(200).json({
     success: true,
     caseList: result,

@@ -22,7 +22,7 @@ import {
   getFundForOrphanage,
   createProfileRequest,
   createCaseRequest,
-  getCaseListByparentId,
+  getCaseListByParentId,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -33,7 +33,7 @@ router.route("/rabbit").get(requestCaseDoc);
 router.route("/createCase").post(protect, createCase);
 router.route("/getCaseList").get(protect, getCaseList);
 router.route("/getCaseListByUserId").get(protect, getCaseListByUserId);
-router.route("/getCaseListByparentId").get(protect, getCaseListByparentId);
+router.route("/getCaseListByParentId").get(protect, getCaseListByParentId);
 router.route("/getCaseInfoByCaseId").get(protect, getCaseInfoByCaseId);
 router
   .route("/getCaseInvitationByUserId")
