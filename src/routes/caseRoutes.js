@@ -18,6 +18,8 @@ import {
   ExternalDashboardCaseAssign,
   getOngoingCaseForDashBoard,
   getCasesForOrphanage,
+  getAdoptionRequest,
+  getFundForOrphanage,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -58,5 +60,7 @@ router
   .route("/ExternalDashboardCaseAssign")
   .get(protect, ExternalDashboardCaseAssign);
 router.route("/getCasesForOrphanage").get(protect, getCasesForOrphanage);
+router.route("/getAdoptionRequest").get(protect, getAdoptionRequest);
+router.route("/getFundForOrphanage").get(protect, getFundForOrphanage);
 
 export default router;

@@ -279,3 +279,40 @@ export const getCasesForOrphanageAsync = async (orphanageId) => {
   );
   return result;
 };
+
+export const getAdoptionRequestAsync = async (orphanageId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
+      p."NameOfMother",
+      p."AdoptionPreference" AS "Description",
+      p."NameOfFather"
+    FROM "User" AS u
+    INNER JOIN "UserRole" AS ur ON u."Id" = ur."UserId"
+    INNER JOIN "Parent" AS p ON p."UserId" = u."Id"
+    WHERE u."OrphanageId" = $1
+      AND ur."RoleId" = (SELECT "Id" FROM "Role" WHERE "Name" = 'parent') LIMIT 4
+        `,
+    [orphanageId]
+  );
+};
+
+export const getFundForOrphanageAsync = async (orphanageId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `
+    SELECT
+    f."TransactionDateTime" AS "Date",
+	  f."Id",
+	  f."Name",
+    f."TransactionAmount" AS "Amount"
+    FROM "ApprovalLog" AS al
+    INNER JOIN "Funding" AS f
+      ON f."ApprovalLogId" = al."Id"
+	  INNER JOIN "User" AS u
+	    ON u."Id" = al."CreatedBy"
+    WHERE u."OrphanageId"= $1 
+    LIMIT 4
+    `,
+    [orphanageId]
+  );
+  return result;
+};

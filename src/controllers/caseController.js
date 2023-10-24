@@ -20,6 +20,8 @@ import {
   ExternalDashboardCaseAssignAsync,
   getOngoingCaseForDashBoardAsync,
   getCasesForOrphanageAsync,
+  getAdoptionRequestAsync,
+  getFundForOrphanageAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -134,7 +136,17 @@ export const getPendingCaseForDashBoard = asyncHandler(async (req, res) => {
 });
 
 export const getOngoingCaseForDashBoard = asyncHandler(async (req, res) => {
-  const result = await getOngoingCaseForDashBoardAsync(req.userInfo.orphanageId);
+  const result = await getOngoingCaseForDashBoardAsync(
+    req.userInfo.orphanageId
+  );
+  return res.status(200).json({
+    success: true,
+    cases: result,
+  });
+});
+
+export const getAdoptionRequest = asyncHandler(async (req, res) => {
+  const result = await getAdoptionRequestAsync(req.userInfo.orphanageId);
   return res.status(200).json({
     success: true,
     cases: result,
@@ -188,6 +200,14 @@ export const getCasesForOrphanage = asyncHandler(async (req, res) => {
   return res.status(200).json({
     success: true,
     count: result[0].count,
+  });
+});
+
+export const getFundForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getFundForOrphanageAsync(req.userInfo.orphanageId);
+  return res.status(200).json({
+    success: true,
+    fund: result,
   });
 });
 
