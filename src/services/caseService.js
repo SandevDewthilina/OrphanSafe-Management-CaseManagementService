@@ -296,6 +296,49 @@ export const getAdoptionRequestAsync = async (orphanageId) => {
   );
 };
 
+export const createApprovalAsync = async (userId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ApprovalLog" ("CreatedBy") VALUES ($1) RETURNING *`,
+    [userId]
+  );
+};
+
+export const childExistProfileAsync = async (Id) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT * FROM "ChildProfileRequest" WHERE "ChildProfileId"=$1`,
+    [Id]
+  );
+};
+
+export const childExistCaseAsync = async (Id) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT * FROM "ChildCasesRequestForParent" WHERE "ChildProfileId"=$1`,
+    [Id]
+  );
+};
+
+export const createRequestAsync = async (
+  description,
+  childProfileId,
+  approveLogId
+) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ChildProfileRequest" ("ApprovalId","ChildProfileId","Remark") VALUES ($1,$2,$3) RETURNING *`,
+    [approveLogId, childProfileId, description]
+  );
+};
+
+export const createCaseRequestAsync = async (
+  description,
+  childProfileId,
+  approveLogId
+) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ChildCasesRequestForParent" ("ApprovalId","ChildProfileId","Remark") VALUES ($1,$2,$3) RETURNING *`,
+    [approveLogId, childProfileId, description]
+  );
+};
+
 export const getFundForOrphanageAsync = async (orphanageId) => {
   const result = await DatabaseHandler.executeSingleQueryAsync(
     `

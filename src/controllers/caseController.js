@@ -22,6 +22,12 @@ import {
   getCasesForOrphanageAsync,
   getAdoptionRequestAsync,
   getFundForOrphanageAsync,
+  createApprovalAsync,
+  createRequestAsync,
+  childExistProfileAsync,
+  childExistCaseAsync,
+  createCaseRequestAsync,
+  getCaseListByparentIdAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -45,6 +51,51 @@ export const createCase = asyncHandler(async (req, res) => {
   }
 });
 
+export const createProfileRequest = asyncHandler(async (req, res) => {
+  const exist = await childExistProfileAsync(req.body.childProfileId);
+  console.log(exist.length);
+  if (exist.length === 0) {
+    const approve = await createApprovalAsync(req.userInfo.userId);
+    console.log(approve[0].Id);
+    const result = await createRequestAsync(
+      req.body.description,
+      req.body.childProfileId,
+      approve[0].Id
+    );
+    return res.status(200).json({
+      success: true,
+      message: "successfully requested",
+    });
+  } else {
+    return res.status(400).json({
+      success: true,
+      message: "Already requested",
+    });
+  }
+});
+
+export const createCaseRequest = asyncHandler(async (req, res) => {
+  const exist = await childExistCaseAsync(req.body.childProfileId);
+  console.log(exist.length);
+  if (exist.length === 0) {
+    const approve = await createApprovalAsync(req.userInfo.userId);
+    const result = await createCaseRequestAsync(
+      req.body.description,
+      req.body.childProfileId,
+      approve[0].Id
+    );
+    return res.status(200).json({
+      success: true,
+      message: "successfully requested",
+    });
+  } else {
+    return res.status(400).json({
+      success: true,
+      message: "Already requested",
+    });
+  }
+});
+
 export const getCaseList = asyncHandler(async (req, res) => {
   const result = await getCaseListasync(req.userInfo.orphanageId);
   return res.status(200).json({
@@ -54,6 +105,14 @@ export const getCaseList = asyncHandler(async (req, res) => {
 });
 
 export const getCaseListByUserId = asyncHandler(async (req, res) => {
+  const result = await getCaseListByUserIdAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    caseList: result,
+  });
+});
+
+export const getCaseListByparentId = asyncHandler(async (req, res) => {
   const result = await getCaseListByUserIdAsync(req.userInfo.userId);
   return res.status(200).json({
     success: true,
