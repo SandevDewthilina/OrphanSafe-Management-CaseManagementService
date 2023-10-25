@@ -54,17 +54,18 @@ export const getCaseListByUserIdAsync = async (userId) => {
 export const getCaseListByParentIdAsync = async (userId) => {
   const result = await DatabaseHandler.executeSingleQueryAsync(
     `SELECT 
-      c."Id" AS "CaseId",
+	    c."Id" AS "CaseId",
       c."CaseName",
       c."Description",
       (SELECT "FullName" AS "ChildName" FROM "ChildProfile" WHERE "Id"=c."ChildProfileId"),
       (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE "CaseLog"."CaseId" = c."Id" ORDER BY "LoggedDateTime" ASC LIMIT 1),
       (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreatedBy")
-    FROM
-      "Case" AS c
-    INNER JOIN "SocialWorker" as sw
-    ON sw."Id"= c."CaseOwnerId"   
-    WHERE "State"='ONGOING'and sw."UserId"=$1 `,
+    FROM "Parent" AS p 
+    INNER JOIN "ParentChildMatchMapping" AS pc ON p."Id" = pc."ParentId"
+    INNER JOIN "ChildCasesRequestForParent" AS pr ON pr."ChildProfileId" = pc."ChildProfileId"
+    INNER JOIN "ApprovalLog" AS al ON al."Id"=pr."ApprovalId"
+    INNER JOIN "Case" AS c ON c."ChildProfileId"=pc."ChildProfileId"
+    WHERE "UserId" = $1 AND al."State" = 'ACCEPT' `,
     [userId]
   );
   return result;
