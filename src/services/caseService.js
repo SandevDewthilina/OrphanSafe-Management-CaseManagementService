@@ -51,6 +51,24 @@ export const getCaseListByUserIdAsync = async (userId) => {
   );
   return result;
 };
+export const getCaseListByParentIdAsync = async (userId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT 
+      c."Id" AS "CaseId",
+      c."CaseName",
+      c."Description",
+      (SELECT "FullName" AS "ChildName" FROM "ChildProfile" WHERE "Id"=c."ChildProfileId"),
+      (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE "CaseLog"."CaseId" = c."Id" ORDER BY "LoggedDateTime" ASC LIMIT 1),
+      (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreatedBy")
+    FROM
+      "Case" AS c
+    INNER JOIN "SocialWorker" as sw
+    ON sw."Id"= c."CaseOwnerId"   
+    WHERE "State"='ONGOING'and sw."UserId"=$1 `,
+    [userId]
+  );
+  return result;
+};
 
 export const getCaseInfoByCaseIdasync = async (caseId) => {
   const result = await DatabaseHandler.executeSingleQueryAsync(
@@ -274,6 +292,86 @@ export const getCasesForOrphanageAsync = async (orphanageId) => {
     LEFT JOIN "User" AS u
       ON c."CreatedBy" = u."Id"
     WHERE u."OrphanageId" = $1
+    `,
+    [orphanageId]
+  );
+  return result;
+};
+
+export const getAdoptionRequestAsync = async (orphanageId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT
+      p."NameOfMother",
+      p."AdoptionPreference" AS "Description",
+      p."NameOfFather"
+    FROM "User" AS u
+    INNER JOIN "UserRole" AS ur ON u."Id" = ur."UserId"
+    INNER JOIN "Parent" AS p ON p."UserId" = u."Id"
+    WHERE u."OrphanageId" = $1
+      AND ur."RoleId" = (SELECT "Id" FROM "Role" WHERE "Name" = 'parent') LIMIT 4
+        `,
+    [orphanageId]
+  );
+};
+
+export const createApprovalAsync = async (userId) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ApprovalLog" ("CreatedBy") VALUES ($1) RETURNING *`,
+    [userId]
+  );
+};
+
+export const childExistProfileAsync = async (Id) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT * FROM "ChildProfileRequest" WHERE "ChildProfileId"=$1`,
+    [Id]
+  );
+};
+
+export const childExistCaseAsync = async (Id) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `SELECT * FROM "ChildCasesRequestForParent" WHERE "ChildProfileId"=$1`,
+    [Id]
+  );
+};
+
+export const createRequestAsync = async (
+  description,
+  childProfileId,
+  approveLogId
+) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ChildProfileRequest" ("ApprovalId","ChildProfileId","Remark") VALUES ($1,$2,$3) RETURNING *`,
+    [approveLogId, childProfileId, description]
+  );
+};
+
+export const createCaseRequestAsync = async (
+  description,
+  childProfileId,
+  approveLogId
+) => {
+  return await DatabaseHandler.executeSingleQueryAsync(
+    `INSERT INTO "ChildCasesRequestForParent" ("ApprovalId","ChildProfileId","Remark") VALUES ($1,$2,$3) RETURNING *`,
+    [approveLogId, childProfileId, description]
+  );
+};
+
+export const getFundForOrphanageAsync = async (orphanageId) => {
+  const result = await DatabaseHandler.executeSingleQueryAsync(
+    `
+    SELECT
+    f."TransactionDateTime" AS "Date",
+	  f."Id",
+	  f."Name",
+    f."TransactionAmount" AS "Amount"
+    FROM "ApprovalLog" AS al
+    INNER JOIN "Funding" AS f
+      ON f."ApprovalLogId" = al."Id"
+	  INNER JOIN "User" AS u
+	    ON u."Id" = al."CreatedBy"
+    WHERE u."OrphanageId"= $1 
+    LIMIT 4
     `,
     [orphanageId]
   );

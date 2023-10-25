@@ -18,6 +18,11 @@ import {
   ExternalDashboardCaseAssign,
   getOngoingCaseForDashBoard,
   getCasesForOrphanage,
+  getAdoptionRequest,
+  getFundForOrphanage,
+  createProfileRequest,
+  createCaseRequest,
+  getCaseListByParentId,
 } from "../controllers/caseController.js";
 import { protect } from "../middleware/authMiddleware.js";
 import { upload } from "../middleware/s3UploadMiddleware.js";
@@ -28,6 +33,7 @@ router.route("/rabbit").get(requestCaseDoc);
 router.route("/createCase").post(protect, createCase);
 router.route("/getCaseList").get(protect, getCaseList);
 router.route("/getCaseListByUserId").get(protect, getCaseListByUserId);
+router.route("/getCaseListByParentId").get(protect, getCaseListByParentId);
 router.route("/getCaseInfoByCaseId").get(protect, getCaseInfoByCaseId);
 router
   .route("/getCaseInvitationByUserId")
@@ -58,5 +64,9 @@ router
   .route("/ExternalDashboardCaseAssign")
   .get(protect, ExternalDashboardCaseAssign);
 router.route("/getCasesForOrphanage").get(protect, getCasesForOrphanage);
+router.route("/getAdoptionRequest").get(protect, getAdoptionRequest);
+router.route("/getFundForOrphanage").get(protect, getFundForOrphanage);
+router.route("/createProfileRequest").post(protect, createProfileRequest);
+router.route("/createCaseRequest").post(protect, createCaseRequest);
 
 export default router;
