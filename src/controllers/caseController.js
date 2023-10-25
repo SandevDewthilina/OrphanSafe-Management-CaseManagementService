@@ -52,7 +52,10 @@ export const createCase = asyncHandler(async (req, res) => {
 });
 
 export const createProfileRequest = asyncHandler(async (req, res) => {
-  const exist = await childExistProfileAsync(req.body.childProfileId);
+  const exist = await childExistProfileAsync(
+    req.body.childProfileId,
+    req.userInfo.userId
+  );
   console.log(exist.length);
   if (exist.length === 0) {
     const approve = await createApprovalAsync(req.userInfo.userId);
@@ -75,7 +78,10 @@ export const createProfileRequest = asyncHandler(async (req, res) => {
 });
 
 export const createCaseRequest = asyncHandler(async (req, res) => {
-  const exist = await childExistCaseAsync(req.body.childProfileId);
+  const exist = await childExistCaseAsync(
+    req.body.childProfileId,
+    req.userInfo.userId
+  );
   console.log(exist.length);
   if (exist.length === 0) {
     const approve = await createApprovalAsync(req.userInfo.userId);

@@ -65,7 +65,7 @@ export const getCaseListByParentIdAsync = async (userId) => {
     INNER JOIN "ChildCasesRequestForParent" AS pr ON pr."ChildProfileId" = pc."ChildProfileId"
     INNER JOIN "ApprovalLog" AS al ON al."Id"=pr."ApprovalId"
     INNER JOIN "Case" AS c ON c."ChildProfileId"=pc."ChildProfileId"
-    WHERE "UserId" = $1 AND al."State" = 'ACCEPT' `,
+    WHERE al."CreatedBy" = $1 AND al."State" = 'ACCEPT' AND "UserId"=$1`,
     [userId]
   );
   return result;
@@ -322,17 +322,21 @@ export const createApprovalAsync = async (userId) => {
   );
 };
 
-export const childExistProfileAsync = async (Id) => {
+export const childExistProfileAsync = async (Id, ParentId) => {
   return await DatabaseHandler.executeSingleQueryAsync(
-    `SELECT * FROM "ChildProfileRequest" WHERE "ChildProfileId"=$1`,
-    [Id]
+    `SELECT * FROM "ChildProfileRequest" AS cp
+INNER JOIN "ApprovalLog" AS al ON al."Id" = cp."ApprovalId"
+WHERE "ChildProfileId"=$1 AND al."CreatedBy" = $2`,
+    [Id, ParentId]
   );
 };
 
-export const childExistCaseAsync = async (Id) => {
+export const childExistCaseAsync = async (Id, ParentId) => {
   return await DatabaseHandler.executeSingleQueryAsync(
-    `SELECT * FROM "ChildCasesRequestForParent" WHERE "ChildProfileId"=$1`,
-    [Id]
+    `SELECT * FROM "ChildCasesRequestForParent" AS cp
+INNER JOIN "ApprovalLog" AS al ON al."Id" = cp."ApprovalId"
+WHERE "ChildProfileId"=$1 AND al."CreatedBy" = $2`,
+    [Id, ParentId]
   );
 };
 
