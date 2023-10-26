@@ -54,17 +54,18 @@ export const getCaseListByUserIdAsync = async (userId) => {
 export const getCaseListByParentIdAsync = async (userId) => {
   const result = await DatabaseHandler.executeSingleQueryAsync(
     `SELECT 
-      c."Id" AS "CaseId",
+	    c."Id" AS "CaseId",
       c."CaseName",
       c."Description",
       (SELECT "FullName" AS "ChildName" FROM "ChildProfile" WHERE "Id"=c."ChildProfileId"),
       (SELECT "LoggedDateTime" AS "LastUpdate" FROM "CaseLog" WHERE "CaseLog"."CaseId" = c."Id" ORDER BY "LoggedDateTime" ASC LIMIT 1),
       (SELECT "Name" AS "AssignedBy" FROM "User" WHERE "Id"= c."CreatedBy")
-    FROM
-      "Case" AS c
-    INNER JOIN "SocialWorker" as sw
-    ON sw."Id"= c."CaseOwnerId"   
-    WHERE "State"='ONGOING'and sw."UserId"=$1 `,
+    FROM "Parent" AS p 
+    INNER JOIN "ParentChildMatchMapping" AS pc ON p."Id" = pc."ParentId"
+    INNER JOIN "ChildCasesRequestForParent" AS pr ON pr."ChildProfileId" = pc."ChildProfileId"
+    INNER JOIN "ApprovalLog" AS al ON al."Id"=pr."ApprovalId"
+    INNER JOIN "Case" AS c ON c."ChildProfileId"=pc."ChildProfileId"
+    WHERE al."CreatedBy" = $1 AND al."State" = 'ACCEPT' AND "UserId"=$1`,
     [userId]
   );
   return result;
@@ -321,17 +322,21 @@ export const createApprovalAsync = async (userId) => {
   );
 };
 
-export const childExistProfileAsync = async (Id) => {
+export const childExistProfileAsync = async (Id, ParentId) => {
   return await DatabaseHandler.executeSingleQueryAsync(
-    `SELECT * FROM "ChildProfileRequest" WHERE "ChildProfileId"=$1`,
-    [Id]
+    `SELECT * FROM "ChildProfileRequest" AS cp
+INNER JOIN "ApprovalLog" AS al ON al."Id" = cp."ApprovalId"
+WHERE "ChildProfileId"=$1 AND al."CreatedBy" = $2`,
+    [Id, ParentId]
   );
 };
 
-export const childExistCaseAsync = async (Id) => {
+export const childExistCaseAsync = async (Id, ParentId) => {
   return await DatabaseHandler.executeSingleQueryAsync(
-    `SELECT * FROM "ChildCasesRequestForParent" WHERE "ChildProfileId"=$1`,
-    [Id]
+    `SELECT * FROM "ChildCasesRequestForParent" AS cp
+INNER JOIN "ApprovalLog" AS al ON al."Id" = cp."ApprovalId"
+WHERE "ChildProfileId"=$1 AND al."CreatedBy" = $2`,
+    [Id, ParentId]
   );
 };
 
