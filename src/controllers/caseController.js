@@ -14,6 +14,20 @@ import {
   getCaseLogBycaseLogIdAsync,
   getCaseLogByLogNameAsync,
   getCaseNameAsync,
+  getPendingCaseForDashBoardAsync,
+  ExternalDashboardChildProfilesAsync,
+  ExternalDashboardPendingCaseAsync,
+  ExternalDashboardCaseAssignAsync,
+  getOngoingCaseForDashBoardAsync,
+  getCasesForOrphanageAsync,
+  getAdoptionRequestAsync,
+  getFundForOrphanageAsync,
+  createApprovalAsync,
+  createRequestAsync,
+  childExistProfileAsync,
+  childExistCaseAsync,
+  createCaseRequestAsync,
+  getCaseListByParentIdAsync,
 } from "../services/caseService.js";
 import { RPCRequest } from "../lib/rabbitmq/index.js";
 import { DOCUMENT_SERVICE_RPC } from "../config/index.js";
@@ -37,6 +51,57 @@ export const createCase = asyncHandler(async (req, res) => {
   }
 });
 
+export const createProfileRequest = asyncHandler(async (req, res) => {
+  const exist = await childExistProfileAsync(
+    req.body.childProfileId,
+    req.userInfo.userId
+  );
+  console.log(exist.length);
+  if (exist.length === 0) {
+    const approve = await createApprovalAsync(req.userInfo.userId);
+    console.log(approve[0].Id);
+    const result = await createRequestAsync(
+      req.body.description,
+      req.body.childProfileId,
+      approve[0].Id
+    );
+    return res.status(200).json({
+      success: true,
+      message: "successfully requested",
+    });
+  } else {
+    return res.status(400).json({
+      success: true,
+      message: "Already requested",
+    });
+  }
+});
+
+export const createCaseRequest = asyncHandler(async (req, res) => {
+  const exist = await childExistCaseAsync(
+    req.body.childProfileId,
+    req.userInfo.userId
+  );
+  console.log(exist.length);
+  if (exist.length === 0) {
+    const approve = await createApprovalAsync(req.userInfo.userId);
+    const result = await createCaseRequestAsync(
+      req.body.description,
+      req.body.childProfileId,
+      approve[0].Id
+    );
+    return res.status(200).json({
+      success: true,
+      message: "successfully requested",
+    });
+  } else {
+    return res.status(400).json({
+      success: true,
+      message: "Already requested",
+    });
+  }
+});
+
 export const getCaseList = asyncHandler(async (req, res) => {
   const result = await getCaseListasync(req.userInfo.orphanageId);
   return res.status(200).json({
@@ -47,6 +112,14 @@ export const getCaseList = asyncHandler(async (req, res) => {
 
 export const getCaseListByUserId = asyncHandler(async (req, res) => {
   const result = await getCaseListByUserIdAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    caseList: result,
+  });
+});
+
+export const getCaseListByParentId = asyncHandler(async (req, res) => {
+  const result = await getCaseListByParentIdAsync(req.userInfo.userId);
   return res.status(200).json({
     success: true,
     caseList: result,
@@ -117,6 +190,34 @@ export const getCaseLogBycaseLogId = asyncHandler(async (req, res) => {
   });
 });
 
+export const getPendingCaseForDashBoard = asyncHandler(async (req, res) => {
+  const result = await getPendingCaseForDashBoardAsync(
+    req.userInfo.orphanageId
+  );
+  return res.status(200).json({
+    success: true,
+    cases: result,
+  });
+});
+
+export const getOngoingCaseForDashBoard = asyncHandler(async (req, res) => {
+  const result = await getOngoingCaseForDashBoardAsync(
+    req.userInfo.orphanageId
+  );
+  return res.status(200).json({
+    success: true,
+    cases: result,
+  });
+});
+
+export const getAdoptionRequest = asyncHandler(async (req, res) => {
+  const result = await getAdoptionRequestAsync(req.userInfo.orphanageId);
+  return res.status(200).json({
+    success: true,
+    cases: result,
+  });
+});
+
 export const updateCaseState = asyncHandler(async (req, res) => {
   const response = req.body.response;
   const caseId = req.body.caseId;
@@ -128,11 +229,50 @@ export const updateCaseState = asyncHandler(async (req, res) => {
 });
 
 export const updateCaseLog = asyncHandler(async (req, res) => {
-  console.log(req.body);
   await updateCaseLogAsync(req.body);
   return res.status(200).json({
     success: true,
     message: "successfully updated",
+  });
+});
+
+export const ExternalDashboardChildProfiles = asyncHandler(async (req, res) => {
+  const result = await ExternalDashboardChildProfilesAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const ExternalDashboardCaseAssign = asyncHandler(async (req, res) => {
+  const result = await ExternalDashboardCaseAssignAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const ExternalDashboardPendingCase = asyncHandler(async (req, res) => {
+  const result = await ExternalDashboardPendingCaseAsync(req.userInfo.userId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const getCasesForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getCasesForOrphanageAsync(req.userInfo.orphanageId);
+  return res.status(200).json({
+    success: true,
+    count: result[0].count,
+  });
+});
+
+export const getFundForOrphanage = asyncHandler(async (req, res) => {
+  const result = await getFundForOrphanageAsync(req.userInfo.orphanageId);
+  return res.status(200).json({
+    success: true,
+    fund: result,
   });
 });
 
